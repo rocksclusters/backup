@@ -1,0 +1,30 @@
+<chapter id="using" xreflabel="Using Backup Roll">
+
+
+<title>Using the Backup Roll</title>
+
+<section id="using-backup" xreflabel="Using the Backup Roll">
+<title>How to use the Backup Roll</title>
+
+<para>
+There are two ways to backup a machine. You can either backup automatically, or manually
+with a web browser.
+</para>
+
+<section id="using-auto" xreflabel="Using the Backup Roll Automatically">
+<title>How to use the Backup Roll automatically</title>
+<para>On your client machine, go to the directory /opt/srbackup. Execute the command:</para>
+<screen>./srbackup.py</screen>
+<para>srbackup.py will backup every machine that has a certificate in the CERTS/ directory. If the Backup Roll was configured correctly, srbackup.py should report that it backed up each machine(which has a certificate in the CERTS/ directory) correctly.</para> <important><para>srbackup.py will prompt you for a password if you chose to encrypt the certificates</para></important>
+<para>Now go to the ISOS/ directory. There should be an iso for every machine that has a certificate in the CERTS/ directory. Note that each iso has a time stamp.</para>
+</section>
+
+<section id="using-manually" xreflabel="Using the Backup Roll Manually">
+<title>How to use the Backup Roll manually</title>
+<para>On your client machine, start up a web browser. Type the following url: </para>
+<screen>https://'hostname of the server'</screen>
+
+<para>Click on the link "Secure and Remote Backup" Click "submit" A window should pop up, asking you what to do with the .iso file. Select 'Save it to disk.' Enter the destination directory for the iso.</para>
+</section>
+</section>
+</chapter>

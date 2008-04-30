@@ -1,0 +1,215 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+<description>
+The Secure and Remote Backup Roll
+</description>
+
+<changelog>
+</changelog>
+
+<post>
+mkdir /var/www/html/srbackup
+mkdir /var/www/html/srbackup/cgi-bin
+mkdir /var/www/html/srbackup/util
+
+cd /var/www/html/srbackup/cgi-bin
+
+<file name="GraftPoints.py">
+def mkGraftPoints(list):
+        str=""
+        for x in list:
+                gPoint=x.replace(" ", "")
+                gPoint=x.replace("\t","")
+		if not gPoint:
+			pass
+		if gPoint.__len__()==1 and gPoint[0]=="/":
+			pass
+		elif gPoint[0]=="/":
+                        gPoint=gPoint[1:]
+                if gPoint:
+			str=gPoint+"="+x+" "+str
+        return str
+</file>
+
+chmod +x GraftPoints.py
+
+<file name="autobackup.py.cgi">
+#!/usr/bin/python
+import os
+import sys
+import cgi
+import string
+import socket
+import popen2
+import GraftPoints
+                                                                                                 
+def readList():
+        fName="backupList"
+        file=open(fName, "r")
+        list=[]
+        for x in file.readlines():
+                #treat commented lines like blank lines
+                for i in range(len(x)):
+                        if x[i]=='#':
+                                x=x[:i]
+                                break
+                #disregard blank lines
+                if x=="":
+                        pass
+                else:
+                        x=x.replace(' ','')
+                        x=x.replace('\n', '')
+                        list.append(x)
+        return  list
+                                                                                                 
+list=readList()
+paths=GraftPoints.mkGraftPoints(list)
+                                                                                                 
+print 'Content-type: application/octet-stream'
+print 'Content-Disposition: filename="backup.iso"\n'#blank line required
+                                                                                                 
+cmd = 'mkisofs -quiet -r -l -A %s -graft-points %s' % \
+(socket.gethostname(), paths)
+job = popen2.Popen3(cmd)
+while 1:
+        data = job.fromchild.read(1024)
+        if not data:
+                break
+        sys.stdout.write(data)
+job.fromchild.close()
+job.tochild.close()
+job.wait()
+</file>
+
+chmod +x autobackup.py.cgi
+
+<file name="backup.py.cgi">
+#!/usr/bin/python
+import os
+import sys
+import cgi
+import string
+import socket
+import popen2
+import time
+import GraftPoints
+
+def formatTime():
+        tmp=time.localtime()
+        tmp=tmp[:6]
+        timeStamp=""
+        for i in tmp:
+                timeStamp=timeStamp+"-"+"%2d"%(i)
+        timeStamp=timeStamp.replace(" ", "0")
+        return timeStamp
+def readList():
+        fName="backupList"
+        file=open(fName, "r")
+        list=[]
+        for x in file.readlines():
+                #treat commented lines like blank lines
+                for i in range(len(x)):
+                        if x[i]=='#':
+                                x=x[:i]
+                                break
+                #disregard blank lines
+                if x=="":
+                        pass
+                else:
+                        x=x.replace(' ','')
+                        x=x.replace('\n', '')
+                        list.append(x)
+        return  list
+
+
+list=readList()
+paths=GraftPoints.mkGraftPoints(list)
+isoName=socket.gethostname()+formatTime()+".iso"
+
+print 'Content-type: application/octet-stream'
+print 'Content-Disposition: filename="%s"\n' %\
+        ( isoName )
+
+cmd = 'mkisofs -quiet -r -l -A %s -graft-points %s' % \
+        (socket.gethostname(), paths)
+job = popen2.Popen3(cmd)
+
+while 1:
+        data = job.fromchild.read(1024)
+        if not data:
+                break
+        sys.stdout.write(data)
+job.fromchild.close()
+job.tochild.close()
+job.wait()
+</file>
+chmod +x backup.py.cgi
+
+<file name="backupList">
+#ADD the directories below
+#that are to be backed up by autobackup.py.cgi 
+#Put each directory on a different line
+#EXAMPLE:
+#/root/rocks
+#/root/rollWork
+#/var/www/html
+</file>
+
+cd /var/www/html/srbackup/util
+
+<file name="Makefile">
+out=Client.pem
+serverPath=/srbackup/cgi-bin/autobackup.py.cgi
+defCAcfg=/etc/security/ca/ca.cfg
+defCAkey=/etc/security/ca/ca.key
+defCAcrt=/etc/security/ca/ca.crt
+defCAsrl=/etc/security/ca/ca.serial
+
+fsPath=$(shell echo $(serverPath) | sed -e 's!/!\\\\\/!g')
+
+gsign:
+	@/usr/bin/openssl req -new -nodes -config $(defCAcfg) -keyout $(out:.pem=.key) -subj "/CN=$(HOSTNAME)$(fsPath)" &gt; $(out:.pem=.csr)
+	@/usr/bin/openssl x509 -req -in $(out:.pem=.csr) -out $(out:.pem=.crt) -sha1 -CA $(defCAcrt) -CAkey $(defCAkey) -CAserial $(defCAsrl) -days 1000
+	@cat $(out:.pem=.crt) $(out:.pem=.key) &gt; $(out)
+	@chmod 0400 $(out)
+sign:
+	@/usr/bin/openssl x509 -req -in $(pubKey) -out $(pubKey:.csr=.crt) -sha1 -CA $(defCAcrt) -CAkey $(defCAkey) -CAserial $(defCAsrl) -days 1000 &gt; $(pubKey:.csr=.crt)
+
+export:
+	@/usr/bin/openssl pkcs12 -export -in $(pem) -name $(pem:.pem=.p12) -out $(pem:.pem=.p12)
+	@/usr/bin/openssl pkcs12 -in $(pem:.pem=.p12) -clcerts -nokeys -info
+	@chmod 0400 $(pem:.pem=.p12)
+</file>
+
+<file name="/var/www/html/srbackup/index.html">
+&lt;HTML&gt;
+&lt;H2&gt;Secure and Remote Backup Utility &lt;/H2&gt;
+&lt;H3&gt;Click "Submit" to begin download of the backup file &lt;/H3&gt;
+&lt;form method=GET action="cgi-bin/backup.py.cgi"&gt;
+        &lt;P&gt;&lt;input type=submit value=Submit&gt;
+&lt;/form&gt;
+&lt;/HTML&gt;
+</file>
+
+<file name="/etc/httpd/conf.d/srbackup.conf">
+&lt;Directory "/var/www/html/srbackup"&gt;
+        SSLRequireSSL
+        SSLVerifyClient Require
+        SSLVerifyDepth 1
+&lt;/Directory&gt;
+</file>
+
+<file name="/var/www/html/homepage/03-srbackup.html">
+&lt;script language=javascript&gt;
+&lt;!--
+document.write("&lt;a href=\"https://"+window.location.hostname+
+"/srbackup/\"&gt;");
+--&gt;
+&lt;/script&gt;
+Secure and Remote Backup&lt;/a&gt;
+</file>
+
+</post>
+</kickstart> 

@@ -1,0 +1,121 @@
+<chapter id="configuring" xreflabel="Configuring the Backup Roll">
+
+
+<title>Configuring the Backup Roll</title>
+
+<section id="Gen-certs" xreflabel="Generating the certificates">
+<title>Generating the Certificates</title>
+<tip><para>The server is the machine being backed up, and the client is the machine that will backup the server(s). The certificate gives the client access to backup the server.</para></tip>
+<para> There are two methods of generating certificates for the client.</para>
+<itemizedlist>
+<listitem><para>
+Generate the entire certificate on the server
+</para></listitem>
+<listitem><para>
+Generate the private key and certificate request on the client, and sign the certificate request on the server
+</para></listitem>
+</itemizedlist>
+<para>Having the server generate the entire certificate is simpler, but the drawback is the server generates, and therefore has access to the client's private key. Using the second method, the client generates its own private key and certificate request, ensuring the server will only see the client's public certificate request. </para>
+
+<section id="Gen-certs-server" xreflabel="Generating the entire certificate on the server">
+<title>Generating the entire certificate on the server</title>
+<para> On the server, go to the directory /var/www/html/srbackup/util. Execute the following command:
+<screen>make gsign</screen></para>
+<para>You should see a certificate named Client.pem in the directory. Run <screen> make clean </screen> to delete the residual files. </para></section>
+
+<section id="Sign-cert-request" xreflabel="Generating the private key and certificate request on the client, and signing the certificate request on the server"><title>Generating the private key and certificate request on the client, and signing the certificate request on the server</title>
+<para>In order to generate the private key and certificate request, go to the client directory /opt/srbackup/. Run
+<screen> make genprivKey privKey=mykey.key HOSTNAME=backmeup.org</screen> 
+The HOSTNAME option specifies the hostname of the server to be backed up.
+</para>
+<para>Make will generate a private key(mykey.key), and a certificate request(mykey.csr).  Send the certificate request(mykey.csr) to the server. </para>
+
+<para>The server administrator should place the certificate request(mykey.csr) in the server directory /var/www/html/srbackup/util. The administrator should sign the request, with the command
+<screen> make sign pubKey=mykey.csr</screen></para>
+<para>Next, the administrator should send the signed certificate(mykey.crt) back to the client.</para>
+
+<para>On the client you should copy the signed certificate to the directory /opt/srbackup/. Merge your private key and signed certificate using 
+<screen> make merge privKey=mykey.key crt=mykey.crt</screen></para>
+<para>You should now see a certificate named mykey.pem in the directory.</para>
+<para>Be sure to delete your private key(mkey.key), certificate request(mykey.csr), and signed certificate(mykey.crt).</para>
+</section>
+
+
+<section id="exporting" xreflabel="Generating a web browser certificate">
+<title>Generating a web browser formatted certificate</title>
+<para>To generate a certificate that will allow you to backup the server manually, through a web browser, you will first need to generate a certificate in .pem format(see above sections), then export it using the command</para>
+<screen> make export pem=Client.pem </screen>
+<para>
+You will prompted for an "export password" This password encrypts the certificate, preventing others from viewing your private key. Next you will be prompted for an "import password" Enter the same password you entered when prompted for an "export password" You should see a certificate named Client.p12 in the directory
+</para>
+
+<para></para>
+<para> If either make sign or make gsign failed, please consult the FAQ section.</para>
+</section>
+</section>
+
+<section id="config-server" xreflabel="Configuring the Server">
+<title>Configuring the Server</title>
+
+<para>
+The following are instructions for configuring the BackupRoll on the server machine.
+</para>
+<para>
+Go to the directory /var/www/html/srbackup/cgi-bin. Open the file "backupList" in 
+a text editor. Add the names of the directories to be backed up. 
+</para>
+<warning><para>Trying to backup the entire system by adding <literal>/</literal>  to the file backupList will probably cause 
+an error on most systems, due to filesystem constraints</para></warning>
+<para>
+You are now finished configuring the server. 
+</para>
+</section>
+
+
+<section id="config-client" xreflabel="Configuring the Backup Roll">
+<title>Configuring the Client</title>
+<para>The following are instructions for configuring the Backup Roll on the client.
+</para>
+
+<para>To backup another machine, the client will need a certificate granting backup authority. Place each certificate granting backup access in the directory /opt/srbackup/CERTS.</para>
+
+<section id="encrypt-certs" xreflabel="Encrypting the certificates">
+<title>Encrypting the certificates</title>
+<para>Since each certificate in the CERTS directory grants permission to back up a computer, it is a good idea to encrypt the CERTS directory to prevent foreign access to the certificates. To encrypt the CERTS directory, go to /opt/srbackup. Execute </para><screen> make encrypt </screen><para> You will be prompted for a password. Your CERTS directory will be archived, encrypted, and stored as a file named CERTS.enc. There is no need to decrypt the CERTS.enc before performing backups; the backup program will prompt you for the password, and decrypt the certificates.</para>
+</section>
+
+<section id="decrypt-certs" xreflabel="Decrypting the certificates">
+<title>Decrypting the  Certificates</title>
+<para>The only drawback to encrypting the certificates is that the backup program will prompt you for a password every time you need to perform a backup. This can be inconvenient. For example, if you would like to schedule the backup program to run at specified times without a user present, you must leave the certificates unencrypted. If the certificates were encrypted, the backup program would prompt the user for a password, and thus the program would not run automatically.</para>
+
+<para>If you have already encrypted the certificates, and would like to decrypt them, run </para><screen> make decrypt </screen> 
+
+<important><para> Note that decrypting the certificates does not delete the original archived and encrypted certificate file, CERTs.enc </para></important>
+
+<para>To add additional certificates to an encrypted certificate directory, you must first decrypt the directory using the command <screen> make decrypt </screen></para>
+ <para>Transfer the additional certificates to the CERTS directory, and encrypt the certificates with the command <screen> make encrypt </screen></para>
+</section>
+
+
+<section id="config-Manual" xreflabel="Configuring for Manual Operation">
+<title>Configuring the backup for manual operation</title>
+<para>
+To back up the server manually, through a web browser, copy the certificate
+previously generated to a temporary directory on the client. For example:
+</para>
+<screen>
+scp backmeup.org:/var/www/html/srbackup/util/Client.p12 /tmp
+</screen>
+<para>Next, import the certificate into the Web Browser. In Netscape, click EDIT->Preferences.
+Then select the tab Privacy & Security->Certificates. Click Manage Certificates. In the window
+that pops up, click import. You'll have to set up a security manager password. Netscape will
+also prompt you for the password that was used to encrypt the certificate. When you created
+the certificate(in the configuration section) you set this password. Close the Certificate 
+Manager Window, and click 'OK' in the Preferences Window. 
+</para>
+
+<important><para> Please note that the BackupRoll has only been tested with the Netscape Web Browser</para></important>
+
+</section>
+</section>
+</chapter>

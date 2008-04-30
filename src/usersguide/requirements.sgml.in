@@ -1,0 +1,16 @@
+<chapter id="requirements" xreflabel="Requirements">
+
+
+<title>Requirements</title>
+
+<section id="rocks-version" xreflabel="Rocks Version">
+<title>Rocks Version</title>
+
+<para>
+
+The Backup Roll is for use with Rocks version @VERSION@ (@VERSION_NAME@).
+
+</para>
+
+</section>
+</chapter>

@@ -1,0 +1,199 @@
+<chapter id="Appendices" xreflabel= "Backup Roll Apendices">
+<title>Backup Roll Appendices</title>
+
+
+<section id="client-makefile" xreflabel="Client Makefile">
+<title>The client makefile</title>
+
+<para>
+This section describes the inner workings of the client side makefile. The makefile 
+can encrypt and decrypt directories, generate private keys and
+certificate requests, merge private keys and public certificates, and
+export certificates. To execute the makefile, use the command form
+<screen>make 'function name' 'option'='option value'</screen>
+The following are makefile functions.</para>
+
+<itemizedlist>
+<listitem>
+<para><command> encrypt</command></para>
+<para>Function: Archives, encrypts and removes the specified
+directory.</para>
+<para></para>
+<para>Necessary options: none</para>
+<para>Additional options:</para>
+<itemizedlist>
+<listitem>
+<para>dir-specifies the directory to be encrypted. By default this value is set to 'CERTS'</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+<listitem>
+<para><command> decrypt</command></para>
+<para>Function: Decrypts and extracts the .enc file into a directory.</para>
+<para></para>
+<para>Necessary options: none</para>
+<para>Additional options:</para>
+<itemizedlist>
+<listitem>
+<para>dir-specifies the directory to be decrypted. By default this
+value is set to 'CERTS'</para>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<para><command>genprivKey</command></para>
+<para>Function: Generates a private key and certificate request</para>
+<para></para>
+<para>Necessary options:</para>
+<itemizedlist>
+<listitem>
+<para>privKey-specifies the name of the private key file to be
+generated</para>
+</listitem>
+<listitem>
+<para>HOSTNAME-specifies the hostname of the server to be backed
+up</para>
+</listitem>
+</itemizedlist>
+<para>Additional options:</para>
+<itemizedlist>
+<listitem>
+<para>serverPath-specifies the location of the backup script on the
+server. By default this value is set to
+'/var/www/html/srbackup/cgi-bin/autobackup.py.cgi'</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+<listitem>
+<para><command>merge</command></para>
+<para>Function: merges a private key and certificate into a .pem formatted
+certificate</para>
+<para></para>
+<para>Necessary options:</para>
+<itemizedlist>
+<listitem>
+<para>privKey-specifies the name of the private key to be merged with the
+certificate</para>
+</listitem>
+<listitem>
+<para>crt-specifies the name of the public certificate to be merged with
+the private key</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+<listitem>
+<para><command>export</command></para>
+<para>Function: exports a .pem formatted certificate into a .p12 browser
+formatted certificate.</para>
+<para>Necessary options:</para>
+<itemizedlist>
+<listitem>
+<para>pem-specifies the name of the .pem formatted certificate to be
+converted to the .p12 browser format</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+</itemizedlist>
+</section>
+
+<section id="server-makefile" xreflabel="Server Makefile">
+<title>The server makefile</title>
+<para>
+This section describes the inner workings of the server side makefile.
+The makefile can sign, generate, and export certificates. To execute the makefile, use the command form
+<screen>make 'function name' 'option'='option value'</screen>
+The following are makefile functions.</para>
+
+<itemizedlist>
+<listitem>
+<para><command>gsign</command></para>
+<para>Function: Generates a .pem formatted certificate granting backup access to the server</para> 
+<para></para>
+<para>Necessary options: none</para>
+<para>Additional options:</para>
+<itemizedlist>
+<listitem>
+<para>out-specifies the name of the certificate to be generated. By default, this value is set to 'Client.pem'</para>
+</listitem>
+<listitem>
+<para>HOSTNAME-specifies the hostname of the server. By default, the hostname of the server is determined automatically</para>
+</listitem>
+<listitem>
+<para>serverPath-specifies the location of the backup script on the server. By default this value is set to '/var/www/html/srbackup/cgi-bin/autobackup.py.cgi'</para>
+</listitem>
+<listitem>
+<para>defCAcfg-specifies the path of the root CA configuration file. By default the value is set to '/etc/security/ca/ca.cfg'</para>
+</listitem>
+<listitem>
+<para>defCAkey-specifies the path of the root CA private key. By default this value is set to '/etc/security/ca/ca.key'</para>
+</listitem>
+<listitem>
+<para>defCAcrt-specifies the path of the root CA certificate. By default this value is set to '/etc/security/ca/ca.crt'</para>
+</listitem>
+<listitem>
+<para>defCAsrl-specifies the path of the root CA serial number. By default this value is set to '/etc/security/ca/ca.serial'</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+<listitem>
+<para><command>sign</command></para>
+<para>Function: Signs a certificate request</para>
+<para></para>
+<para>Necessary options:</para>
+<itemizedlist>
+<listitem>
+<para>pubKey-specifies the name of the certificate request</para> 
+</listitem>
+</itemizedlist>
+<para>Additional options:</para>
+<itemizedlist>
+<listitem>
+<para>out-specifies the name of the certificate to be generated. By default, this value is set to 'Client.pem'</para>
+</listitem>
+<listitem>
+<para>HOSTNAME-specifies the hostname of the server. By default, the hostname of the server is determined automatically</para>
+</listitem>
+<listitem>
+<para>serverPath-specifies the location of the backup script on the server. By default this value is set to '/var/www/html/srbackup/cgi-bin/autobackup.py.cgi'</para>
+</listitem>
+<listitem>
+<para>defCAcfg-specifies the path of the root CA configuration file. By default the value is set to '/etc/security/ca/ca.cfg'</para>
+</listitem>
+<listitem>
+<para>defCAkey-specifies the path of the root CA private key. By default this value is set to '/etc/security/ca/ca.key'</para>
+</listitem>
+<listitem>
+<para>defCAcrt-specifies the path of the root CA certificate. By default this value is set to '/etc/security/ca/ca.serial'</para>
+</listitem>
+<listitem>
+<para>defCAsrl-specifies the path of the root CA serial number. By default this value is set to '/etc/security/ca/ca.serial'</para>
+</listitem>
+</itemizedlist>
+</listitem>
+
+
+<listitem>
+<para><command>export</command></para>
+<para>Function: Exports a .pem formatted certificate into a .p12 browser formatted certificate </para>
+<para></para>
+<para>Necessary options:</para>
+<itemizedlist>
+<listitem>
+<para>pem-specifies the name of the .pem formatted certificate to be converted to the .p12 browser format</para> 
+</listitem>
+</itemizedlist>
+</listitem>
+
+</itemizedlist>
+</section>
+</chapter>
+
+
+
+
+

@@ -1,0 +1,20 @@
+<preface id="preface" xreflabel="preface">
+<title>Preface</title>
+
+<para>
+The Backup Roll enables a Rocks Cluster to securely, remotely, and 
+automatically backup other clusters. 
+</para>
+<para>
+The Backup Roll has several key features. 
+When a backup image is generated, it is directly streamed to the computer 
+performing the backup, so that no hard disk space is occupied on the computer 
+being backed up. In addition, the Backup Roll uses the industry standard 
+OpenSSL, Apache, and python M2Crypto in order to perform backups that are both 
+quick and secure.
+</para>
+<para>
+The Backup Roll was written by David McIntosh
+</para>
+
+</preface>

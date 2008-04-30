@@ -1,0 +1,23 @@
+<?xml version="1.0" standalone="no"?>
+
+<graph>
+
+<description>
+The Secure and Remote Backup Roll
+</description>
+
+<changelog>
+
+</changelog>
+
+<edge from="frontend">
+	<to>srbackup-frontend</to>
+</edge>
+<edge from="frontend">
+	<to>srbackup-server</to>
+</edge>
+
+<edge from="compute">
+	<to>srbackup-frontend</to>
+</edge>
+</graph>

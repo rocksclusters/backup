@@ -1,0 +1,167 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+<description>
+The Secure and Remote Backup Roll
+</description>
+
+<changelog>
+</changelog>
+
+<package>m2crypto</package>
+
+<post>
+mkdir /opt/srbackup
+cd /opt/srbackup
+
+mkdir ISOS
+mkdir CERTS
+
+<file name="https_cli.py">
+#!/usr/bin/python
+                                                                                                 
+import sys
+import string
+from M2Crypto import SSL, httpslib, X509
+                                                                                                 
+def get_URL(cert_name):
+        cert=X509.load_cert(cert_name)
+        try:
+		url=cert.get_subject().__str__()
+        except:
+		print '%s corrupted or generated incorrectly' %(cert_name)
+	#URL is on the right side of the = sign
+        url=string.split(url, "=")[1]
+        return url
+                                                                                                 
+                                                                                                 
+def get_ISO(certname,fname):
+        ctx = SSL.Context('sslv3')
+        ctx.load_client_ca(certname)
+        ctx.load_cert(certname)
+                                                                                                 
+        #Uncommenting the line below will
+        #cause Segmentation faults
+        #ctx.set_info_callback()
+                                                                                                 
+        url=get_URL(certname)
+        host=string.split(url, "/")[0]
+                                                                                                 
+        h = httpslib.HTTPSConnection(host, 443,ssl_context=ctx)
+        h.set_debuglevel(0)
+                                                                                                 
+        arg=""
+        for i in string.split(url, "/")[1:]:
+                arg=arg+"/"+i
+                                                                                                 
+        h.putrequest('GET', arg)
+        h.putheader('Accept', 'text/html')
+        h.putheader('Accept', 'text/plain')
+        h.putheader('Connection', 'close')
+        h.endheaders()
+                                                                                                 
+        resp = h.getresponse()
+        file=open(fname, 'wb')
+        f = resp.fp
+        while 1:
+                data = resp.read(1024)
+                if not data: break
+                file.write(data)
+                file.flush()
+        os.system('chmod 0400 %s' % (fname))
+        f.close()
+        h.close()
+</file>
+chmod +x https_cli.py
+
+
+<file name="Makefile">
+#default value for directory
+dir=CERTS
+privKey=default.key
+crt=default.crt
+cfg=/etc/security/ca/ca.cfg
+serverPath=/srbackup/cgi-bin/autobackup.py.cgi
+fsPath=$(shell echo $(serverPath) | sed -e 's!/!\\\\\/!g')
+encrypt:
+#Check to see if .tar file exists
+	@if [ -e ${dir}.tar ];\
+		then echo "File ${dir}.tar already exists";\
+		exit 1;\
+		fi
+
+	@tar --preserve-permissions -c ${dir} &gt; ${dir}.tar
+	@/usr/bin/openssl enc -bf-cbc -e -in ${dir}.tar &gt; ${dir}.enc
+	@rm -f ${dir}.tar
+	@rm -f -r ${dir}
+decrypt:
+	@if [ -d ${dir} ];\
+		then echo "Directory ${dir} already exists";\
+		exit 1;\
+		fi
+	@/usr/bin/openssl enc -bf-cbc -d -in ${dir}.enc &gt; ${dir}.tar
+	@tar -xvf ${dir}.tar
+	@rm ${dir}.tar
+
+genprivKey:
+	@/usr/bin/openssl req -new -nodes -config $(cfg) -keyout $(privKey) -subj "/CN=$(HOSTNAME)$(fsPath)" &gt; $(privKey:.key=.csr)
+	@chmod 0400 $(privKey)
+merge:
+	@cat $(privKey) $(crt) &gt; $(privKey:.key=.pem)
+	@chmod 0400 $(privKey:.key=.pem)
+export:
+	@/usr/bin/openssl pkcs12 -export -in $(pem) -name $(pem:.pem=.p12) -out $(pem:.pem=.p12)
+	@/usr/bin/openssl pkcs12 -in $(pem:.pem=.p12) -clcerts -nokeys -info
+	@chmod 0400 $(pem:.pem=.p12)
+</file>
+
+<file name="srbackup.py">
+#!/usr/bin/python
+import os
+import glob
+import time
+from https_cli import *
+                                                                                
+#directory where certs are stored
+dirCerts="CERTS/"
+dirISOS="ISOS/"
+eFlag=0 #if eFlag is 0, certs directory is unencrypted
+	#if eFlag is 1, certs directory is encrypted                
+def formatTime():
+	tmp=time.localtime()
+	tmp=tmp[:6]
+	timeStamp=""
+	for i in tmp:
+		timeStamp=timeStamp+"-"+"%2d"%(i)
+	timeStamp=timeStamp.replace(" ", "0")
+	return timeStamp	
+#if CERTS directory is encrypted, decrypt it
+if os.path.exists(dirCerts[:-1]+".enc") and not os.path.exists(dirCerts):
+	eFlag=1
+	arg="make decrypt dir=%s" % (dirCerts[:-1])
+	os.system(arg)
+
+certList=glob.glob(dirCerts+"*.pem")
+if certList.__len__() ==0:
+	print 'No Available Certificates in directory %s'%(dirCerts)
+                                            
+for x in certList:
+        try:
+                get_ISO(x,dirISOS+get_URL(x).split("/")[0]+formatTime()+".iso")
+        	print 'SUCCESSFULLY backed up server %s with %s'%\
+			( get_URL(x).split("/")[0],x )
+	except:
+                print "Failed to backup server %s with %s" %\
+                        ( get_URL(x).split("/")[0],x )
+
+#if CERTS directory was encrypted, delete the CERTS directory. The encrypted
+#directory file *.enc remains
+if eFlag==1:
+	arg="rm -r -f %s" % (dirCerts[:-1])
+	os.system(arg)
+</file>
+chmod +x srbackup.py
+
+</post>
+</kickstart>

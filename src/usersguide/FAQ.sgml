@@ -1,0 +1,56 @@
+<chapter id="FAQ" xreflabel= "Backup Roll FAQ">
+<title>Backup Roll FAQ</title>
+
+<section id="Seg-Fault" xreflabel="Segmentation Fault">
+<title>Why do I get a Segmentation Fault?</title>
+<para>
+Don't worry. The Segmentation Fault doesn't affect the operation of the program. 
+</para>
+
+<para>
+The Backup Roll does not cause the Segmentation fault. Rather, it is the python
+M2Crypto library
+which causes it. Hopefully, future releases of the M2Crypto library will not contain the bug.
+</para>
+
+<para>
+The Segmentation Fault occurs when srbackup.py uses the wrong key when it attempts to backup a 
+server. Even if you have an outdated certificate in the CERTS directory, srbackup.py will continue to backup all the other servers which have certificates in the directory. The Segmentation Fault will only occur when the program exits. To fix this problem, you must regenerate the outdated certificate.(Please see configuration section on generating certificates)
+</para>
+</section>
+
+<section id="FAIL" xreflabel="srbackup.py reports it 'FAILED'">
+<title> Why does srbackup.py report that it 'FAILED' to backup a particular host?</title>
+<para>There are three possible reasons</para>
+<para> First, your Certificate may have the wrong key. As discussed above, this will cause
+a Segmentation Fault. You will need to regenerate the certificate. (Please see configuration section on generating certificates) 
+</para>
+<para> The second possibility is that the certificate contains the wrong hostname. Try
+Pinging the hostname to make sure it exists.
+</para>
+<para> The third possibility is that the certificate contains an incorrect link to the backup script. Execute the command</para> 
+<screen>openssl x509 -text -noout &lt; Name of Certificate | grep "Subject"</screen>
+
+<para>You should see this line:</para><screen> Subject: 'hostname of server'/srbackup/cgi-bin/autobackup.py.cgi</screen>
+<para>If you do not see this line, or if this line contains a link other than ''hostname of server'/srbackup/cgi-bin/autobackup.py.cgi', you will need to regenerate the certificate.
+If, after regenerating the certificate, the problem persists, make sure that the path</para> 
+<screen> /var/www/html/srbackup/cgi-bin/autobackup.py.cgi</screen><para>exists on the server.
+</para>
+</section>
+
+<section id="make" xreflabel="make gsign/sign fails">
+<title>Why does make gsign/sign fail? </title>
+<para> You need root permissions to run make. Log in as root before 
+executing either make sign or make gsign </para>
+</section>
+
+<section id="srbackup-root" xreflabel="srbackup as root">
+<title>Does srbackup.py have to run as root?</title>
+<para>Yes.</para>
+<para>Keep in mind that each certificate in the CERTS directory allows access into 
+the server. Running srbackup.py as another user would require you to change the permissions
+on the certificates, which would make the certificates less secure.
+srbackup.py runs as root so that it does not compromise the security of the machines it backs up.</para> 
+</section>
+
+</chapter>

@@ -1,0 +1,33 @@
+<chapter id="installing" xreflabel="Installing">
+
+
+<title>Installing the Backup Roll</title>
+
+<section id="adding-the-roll" xreflabel="Adding the Roll">
+<title>Adding the Roll</title>
+
+<para>
+
+The Backup Roll must be installed during the Frontend installation step
+of your cluster (refer to section 1.2 of the Rocks usersguide). Note that
+the Backup Roll must be installed on both the server(machine to backed up)
+and the client(machine that backs up the server).
+</para>
+
+
+<para>
+The Backup Roll is added to a Frontend installation in exactly the same
+manner as the required HPC Roll. After the HPC Roll is
+added the installer will once again ask if you have a Roll (see
+below).  Select 'Yes' and insert the Backup Roll.
+<mediaobject>
+    <imageobject>
+        <imagedata fileref="images/i-01.png" scale=50>
+    </imageobject>
+</mediaobject>
+
+<important><para>Please note that the Backup Roll must be installed on both
+the server(machine that will be backed up), and the client(machine that backs up the server)</para></important>
+</para>
+</section>
+</chapter>
