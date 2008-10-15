@@ -1,3 +1,4 @@
+ROLLNAME = backup
 RELEASE = 1
 COLOR   = lightblue
 
