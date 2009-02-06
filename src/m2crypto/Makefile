@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.7 2008/10/18 00:55:44 mjk Exp $
+# $Id: Makefile,v 1.8 2009/02/06 14:19:59 bruno Exp $
 #
 # @Copyright@
 # 
@@ -55,6 +55,9 @@
 # @Copyright@
 #
 # $Log: Makefile,v $
+# Revision 1.8  2009/02/06 14:19:59  bruno
+# updated for 5.1
+#
 # Revision 1.7  2008/10/18 00:55:44  mjk
 # copyright 5.1
 #
@@ -77,21 +80,20 @@
 
 PKGROOT		= /opt/rocks/m2crypto
 REDHAT.ROOT     = $(PWD)/../../
-ROCKSROOT       = ../../../../..
+
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
 build:
-	unzip $(NAME)-$(VERSION).zip
+	tar zvfx $(NAME)-$(VERSION).tar.gz
 	(								\
 		cd $(NAME)-$(VERSION);					\
-		python setup.py build;					\
+		python setup.py build_ext --include-dirs=/usr/include/openssl ;\
 	)
 
 install::
 	(								\
 		cd $(NAME)-$(VERSION);					\
-		python setup.py build;					\
 		python setup.py install --root=$(ROOT);			\
 	)
 

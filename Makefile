@@ -1,5 +1,5 @@
 #
-# $Id: Makefile,v 1.9 2008/10/18 00:55:44 mjk Exp $
+# $Id: Makefile,v 1.10 2009/02/06 14:19:58 bruno Exp $
 #
 # @Copyright@
 # 
@@ -55,6 +55,9 @@
 # @Copyright@
 #
 # $Log: Makefile,v $
+# Revision 1.10  2009/02/06 14:19:58  bruno
+# updated for 5.1
+#
 # Revision 1.9  2008/10/18 00:55:44  mjk
 # copyright 5.1
 #
@@ -95,7 +98,6 @@
 #
 #
 
-ROLLSROOT = ..
 -include $(ROLLSROOT)/etc/Rolls.mk
 include Rolls.mk
 

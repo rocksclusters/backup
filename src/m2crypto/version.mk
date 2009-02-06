@@ -1,5 +1,5 @@
-NAME		= m2crypto
-VERSION		= 0.13
+NAME		= M2Crypto
+VERSION		= 0.19.1
 RELEASE		= 1
 VENDOR		= M2Crypto 
 

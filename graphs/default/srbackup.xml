@@ -10,14 +10,13 @@ The Secure and Remote Backup Roll
 
 </changelog>
 
-<edge from="frontend">
+<edge from="server">
 	<to>srbackup-frontend</to>
-</edge>
-<edge from="frontend">
 	<to>srbackup-server</to>
 </edge>
 
-<edge from="compute">
+<edge from="client">
 	<to>srbackup-frontend</to>
 </edge>
+
 </graph>

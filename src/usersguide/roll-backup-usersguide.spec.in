@@ -1,4 +1,4 @@
-# $Id: roll-backup-usersguide.spec.in,v 1.9 2008/10/18 00:55:44 mjk Exp $
+# $Id: roll-backup-usersguide.spec.in,v 1.10 2009/02/06 14:19:59 bruno Exp $
 #
 # @Copyright@
 # 
@@ -54,6 +54,9 @@
 # @Copyright@
 #
 # $Log: roll-backup-usersguide.spec.in,v $
+# Revision 1.10  2009/02/06 14:19:59  bruno
+# updated for 5.1
+#
 # Revision 1.9  2008/10/18 00:55:44  mjk
 # copyright 5.1
 #
@@ -108,7 +111,7 @@ Summary: Grid Roll
 Name: @NAME@
 Version: @VERSION@
 Release: @RELEASE@
-Copyright: @COPYRIGHT@
+License: @COPYRIGHT@
 Vendor: @VENDOR@
 Group: System Environment/Base
 Source: %{name}-%{version}.tar.gz
