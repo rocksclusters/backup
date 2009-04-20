@@ -201,15 +201,5 @@ export:
 &lt;/Directory&gt;
 </file>
 
-<file name="/var/www/html/homepage/03-srbackup.html">
-&lt;script language=javascript&gt;
-&lt;!--
-document.write("&lt;a href=\"https://"+window.location.hostname+
-"/srbackup/\"&gt;");
---&gt;
-&lt;/script&gt;
-Secure and Remote Backup&lt;/a&gt;
-</file>
-
 </post>
 </kickstart> 
