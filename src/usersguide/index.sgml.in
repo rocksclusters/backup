@@ -12,7 +12,7 @@
 <book>
 <bookinfo>
 
-	<title> Backup Roll: Users Guide </title>
+	<title> Backup Users Guide </title>
 
 	<subtitle>
 		<inlinemediaobject>
@@ -22,7 +22,7 @@
 		</inlinemediaobject>
 	</subtitle>
 
-	<edition>Version @VERSION@</edition>
+	<edition>@VERSION@</edition>
 
 	<pubdate>@PUBDATE@</pubdate>
 
